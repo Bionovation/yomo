@@ -5,6 +5,7 @@ let tmprec
 const latlngs = []    // 正在绘制的临时矩形的坐标
 var drawing = false;  // 正在绘制矩形
 var pressing = false; // 鼠标处于按下状态
+var modified = false; // 数据已修改
 var classNo = 0       // 当前要标注的类别id
 var classNames = ['RedCell','Platelet','other']
 var classClrs = [
@@ -20,6 +21,8 @@ var classClrs = [
 var imgWidth = 1224
 var imgHeight = 1024
 
+var path = 'img/'
+var curImage = null
 
 
 function init(){
@@ -27,15 +30,72 @@ function init(){
 		crs: L.CRS.Simple,
 		zoomControl:false,
 		attributionControl:false,
-		minZoom: -5
+		minZoom: -3
 	});
-	var bounds = [[0,0], [imgHeight,imgWidth]];
-	var image = L.imageOverlay('img/2020073001437.jpg', bounds).addTo(map);
-	map.fitBounds(bounds);
+		
+	getImageList();
 	
 	setmouseHandler();
 	setClassItem();
 	setCurClass(0);
+	setListHandle();
+}
+
+// 提示保存
+function noteToSave(){
+	if(!modified) return
+	var r = confirm("是否保存修改")
+	if(r){
+		alert('ok')
+	}
+}
+
+function getImageList(){
+	var imageList = [
+		"img\\2020073001437.jpg",
+		"img\\2020073001438.jpg",
+		"img\\2020073001439.jpg",
+		"img\\2020073001440.jpg"
+	]
+	
+	var firstName = null
+	var listCtl = document.getElementById('imgList')
+	for(var i = 0; i < imageList.length; i++){
+		var pathsegs = imageList[i].split('\\');
+		var name = pathsegs[pathsegs.length-1]
+		var div = document.createElement('li')
+		div.className = 'imgItem'
+		div.innerText = name
+		listCtl.appendChild(div)
+		if(i == 0){
+			firstName = path+name
+			div.style.backgroundColor = 'rgb(255,0,0)'
+			curImage = firstName
+		}
+	}
+	
+	var bounds = [[0,0], [imgHeight,imgWidth]];
+	var image = L.imageOverlay(firstName, bounds).addTo(map);
+	map.fitBounds(bounds);
+}
+
+function setListHandle(){
+	$('ul#imgList').on('click','li',function(){
+		noteToSave(); // 提示保存
+		var imgpath = path + $(this).text()
+		curImage = imgpath
+		//alert(imgpath)
+		map.eachLayer(function(layer){
+			layer.remove()
+		})
+		var bounds = [[0,0], [imgHeight,imgWidth]];
+		var image = L.imageOverlay(imgpath, bounds).addTo(map);
+		map.fitBounds(bounds);
+		$('.imgItem').css('background-color','#F0F8FF')
+		// 列表选中
+		$(this).css('background-color','rgb(255,0,0)')
+		modified = false
+	})
 }
 
 function setCurClass(classId){
@@ -76,6 +136,7 @@ function setmouseHandler(){
 // 鼠标右键删除
 function onRightClickItem(e){
 	e.target.remove()
+	modified = true
 }
 
 function onmouseDown(e){
@@ -97,6 +158,7 @@ function onmouseDown(e){
 			rectangle.addTo(map)
 				.bindTooltip(classNames[classNo])
 				.on('contextmenu', onRightClickItem)
+			modified = true
 			return
 		}
 		
