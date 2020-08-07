@@ -31,4 +31,5 @@ func setRouter(app *iris.Application)  {
 	// set img
 	app.Get("/imgs",handleImgList)
 	app.Get("/img/:imgname",handleGetImg)
+	app.Get("/img/:imgname/info",handleGetImgInfo)
 }

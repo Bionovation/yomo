@@ -1,12 +1,16 @@
 package core
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+	"yomo/server/models"
+	"yomo/utils"
 )
 
-func GetImgList(imgpath string) ([]string, error) {
+// 获取图片列表
+func GetImgList(imgpath string) ([]models.ImgItem, error) {
 	dir, err := ioutil.ReadDir(imgpath)
 	if err != nil {
 		return nil, err
@@ -25,5 +29,20 @@ func GetImgList(imgpath string) ([]string, error) {
 
 	// 读取状态，如果有txt文件，则说明标注过了，前端打勾
 
-	return imgnames, nil
+
+	imgs := make([]models.ImgItem,0, len(imgnames))
+	for _, imgname :=  range imgnames{
+		fmt.Println(imgname)
+		name := strings.TrimRight(imgname,filepath.Ext(imgname))
+		txtfile := filepath.Join(imgpath,name + ".txt")
+
+		img := models.ImgItem{
+			Name:imgname,
+			Marked:utils.Exist(txtfile),
+		}
+		imgs = append(imgs,img)
+	}
+
+
+	return imgs, nil
 }
