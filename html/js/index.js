@@ -23,10 +23,8 @@ var imgHeight = 1024
 
 var imageList = null
 var curImageInfo = null
-
-
 var curImage = null
-
+var selectedWsName = null
 
 function init(){
 	map = L.map('map', {
@@ -48,7 +46,28 @@ function init(){
 
 function setClickHandler(){
 	$("#workspaceName").click(function(){
-		alert("workspace")
+		openWSListDialog()
+	})
+	$("#ws-close").click(function(){
+		$("#wsListDlg").hide()
+	})
+	$("#ws-btn-confirm").click(function(){
+		if(selectedWsName != null){
+			$("#wsListDlg").hide()
+			openWorkspace(selectedWsName)
+		} else{
+			return
+		}
+	})
+	$("#ws-btn-cancel").click(function(){
+		$("#wsListDlg").hide()
+	})
+	$(".ws-item").click(function(){
+		$(".ws-item").css("background-color", "lightgrey")
+		$(this).css("background-color", "#ff6666")
+		var wsname = $(this).children(":first").text()
+		var folder = $(this).children(":last").text()
+		selectedWsName = wsname
 	})
 }
 
@@ -108,6 +127,21 @@ function drawMarkList(marks){
 	}
 }
 
+
+// 打开选择工作空间窗口
+function openWSListDialog(){
+	selectedWsName = null
+	// 从服务器获取ws列表
+	// to do ...
+	$(".ws-item").css("background-color", "lightgrey")
+	$("#wsListDlg").show()
+}
+
+// 打开工作空间
+function openWorkspace(name){
+	$("#workspaceName").text(name)
+	alert("todo ... 打开工作空间 " + name)
+}
 
 // 选中image
 function selectImage(img){

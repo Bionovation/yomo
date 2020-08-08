@@ -147,3 +147,78 @@ body{
 	margin-left: 6px;
 }
 
+/*workspace选择对话框*/
+#wsListDlg{
+	width: 560px;
+	height: 400px;
+	position: fixed;
+	margin: auto;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 2;
+	color: white;
+	background-color: white;
+}
+#ws-header{
+	width: 100%;
+	height: 40px;
+	background-color: #0078A8;
+}
+
+#ws-header>h4{
+	display: inline-block;
+	margin-left: 16px;
+	margin-top: 8px;
+}
+
+#ws-close{
+	float: right;
+	font-size: 20px;
+	margin: 4px 14px;
+	cursor: pointer;
+}
+
+#ws-content{
+	width: 100%;
+	height: 300px;
+	overflow: scroll;
+	padding: 10px;
+	background-color: darkgray;
+}
+
+.ws-item{
+	width: 100%;
+	height: 40px;
+	background-color: lightgrey;
+	/*padding-left: 40px;*/
+	margin-top: 2px;
+	padding-top: 8px;
+	/*border-bottom: #3399CC solid 1px;*/
+	cursor: pointer;
+}
+.ws-item>div:first-child{
+	width: 160px;
+}
+.ws-item>div{
+	display: inline-block;
+	margin-left: 50px;
+}
+
+#ws-footer{
+	width: 100%;
+	height: 60px;
+	/*background-color: seagreen;*/
+}
+
+.ws-btn{
+	width: 80px;
+	height: 40px;
+	float: right;
+	color: #000000;
+	background-color: #577EB2;
+	padding: 8px 20px;
+	margin: 10px 20px 10px 0;
+	cursor: pointer;
+}
