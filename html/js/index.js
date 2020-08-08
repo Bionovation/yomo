@@ -21,7 +21,10 @@ var classClrs = [
 var imgWidth = 1224
 var imgHeight = 1024
 
-var path = 'img/'
+var imageList = null
+var curImageInfo = null
+
+
 var curImage = null
 
 
@@ -33,12 +36,20 @@ function init(){
 		minZoom: -3
 	});
 		
-	getImageList();
+	//getImageList();
+	initImageList();
 	
 	setmouseHandler();
 	setClassItem();
 	setCurClass(0);
 	setListHandle();
+	setClickHandler();
+}
+
+function setClickHandler(){
+	$("#workspaceName").click(function(){
+		alert("workspace")
+	})
 }
 
 // 提示保存
@@ -50,51 +61,104 @@ function noteToSave(){
 	}
 }
 
-function getImageList(){
-	var imageList = [
-		"img\\2020073001437.jpg",
-		"img\\2020073001438.jpg",
-		"img\\2020073001439.jpg",
-		"img\\2020073001440.jpg"
-	]
-	
+// 更新
+function updataImageList(imageList){
 	var firstName = null
 	var listCtl = document.getElementById('imgList')
+	listCtl.innerHTML = ""
+	
 	for(var i = 0; i < imageList.length; i++){
-		var pathsegs = imageList[i].split('\\');
-		var name = pathsegs[pathsegs.length-1]
-		var div = document.createElement('li')
-		div.className = 'imgItem'
-		div.innerText = name
-		listCtl.appendChild(div)
-		if(i == 0){
-			firstName = path+name
-			div.style.backgroundColor = 'rgb(255,0,0)'
-			curImage = firstName
+		var name = imageList[i].Name
+		var li = document.createElement('li')
+		var span = document.createElement('span')
+		span.innerText = name
+		li.appendChild(span)
+		
+		span = document.createElement('span')
+		if(imageList[i].Marked){
+			span.className = "wancheng iconfont icon-wancheng"
+		}else{
+			span.className = "wancheng iconfont"
 		}
+		li.appendChild(span)
+		
+		li.className = 'imgItem'
+		listCtl.appendChild(li)
 	}
 	
+	selectImage(imageList[0])
+}
+
+// 绘制mark
+function drawMarkList(marks){
+	for(var i = 0; i < marks.length; i++){
+		mk = marks[i]
+		cn = mk.ClassId
+		var rc = yolo2leaflet(mk.Rect)
+		var rectangle=L.rectangle(rc,{
+			color:classClrs[cn],
+			fillOpacity:0,
+			weight:2,
+			className:''+cn,
+			attribution: classNames[cn]
+		})
+		rectangle.addTo(map)
+			.bindTooltip(classNames[cn])
+			.on('contextmenu', onRightClickItem)
+	}
+}
+
+
+// 选中image
+function selectImage(img){
+	$('.imgItem').css('background-color','#F0F8FF')
+	var listCtl = document.getElementById('imgList')
+	listCtl.childNodes[img.Index].style.backgroundColor = '#ff6666'
+	curImage = img.Name
+	
 	var bounds = [[0,0], [imgHeight,imgWidth]];
-	var image = L.imageOverlay(firstName, bounds).addTo(map);
+	var image = L.imageOverlay("img/"+img.Name, bounds).addTo(map);
 	map.fitBounds(bounds);
+	
+	initMarkList(img.Name)
+}
+
+
+function initImageList() {
+	$.get("/imgs",function(data,status){
+		if(status == "success"){
+			imageList = data.data
+			updataImageList(imageList)
+		}
+	})
+}
+
+function initMarkList(imgName) {
+	$.get("/info/"+imgName, function(data,status){
+		if(status == "success"){
+			curImageInfo = data.data
+			drawMarkList(curImageInfo.Marks)
+		}
+	})
 }
 
 function setListHandle(){
 	$('ul#imgList').on('click','li',function(){
 		noteToSave(); // 提示保存
-		var imgpath = path + $(this).text()
-		curImage = imgpath
+		curImage = $(this).text()
 		//alert(imgpath)
 		map.eachLayer(function(layer){
 			layer.remove()
 		})
 		var bounds = [[0,0], [imgHeight,imgWidth]];
-		var image = L.imageOverlay(imgpath, bounds).addTo(map);
+		var image = L.imageOverlay("img/" + curImage, bounds).addTo(map);
 		map.fitBounds(bounds);
 		$('.imgItem').css('background-color','#F0F8FF')
 		// 列表选中
-		$(this).css('background-color','rgb(255,0,0)')
+		$(this).css('background-color','#ff6666')
 		modified = false
+		
+		initMarkList($(this).text())
 	})
 }
 
@@ -209,6 +273,91 @@ function latlng2img(e){
 	a.x = e.lng;
 	a.y = imgHeight - e.lat;
 	return a;
+}
+
+function img2latlng(a){
+	var e = {}
+	e.lng = a.x
+	e.lat = imgHeight - a.y
+	return e
+}
+
+// yolo 转 leaflet
+function yolo2leaflet(yrect){
+	var cx = imgWidth * yrect[0]
+	var cy = imgHeight * yrect[1]
+	var w = imgWidth * yrect[2]
+	var h = imgHeight * yrect[3]
+	var leftbottom = {}
+	leftbottom.x = cx - w / 2
+	leftbottom.y = cy - h / 2
+	var righttop = {}
+	righttop.x = cx + w /2
+	righttop.y = cy + h / 2
+	
+	var lb = img2latlng(leftbottom)
+	var rt = img2latlng(righttop)
+	var leaflet = [[lb.lat, lb.lng], [rt.lat, rt.lng]]
+	return leaflet
+}
+
+
+// 保存提交修改
+function saveChanges(){
+	var mks = []
+	var yoloTxt = ''
+	map.eachLayer(function(layer){
+		if(layer._url != undefined) return;
+		if(layer._bounds._northEast == undefined) return;
+		var northEast = latlng2img(layer._bounds._northEast)
+		var southWest = latlng2img(layer._bounds._southWest)
+		
+		var pos = []
+		pos.push(southWest.x,northEast.y,northEast.x-southWest.x,southWest.y-northEast.y)
+		pos[0] += pos[2]/2
+		pos[1] += pos[3]/2
+		
+		var pos2 = []
+		pos2[0] = pos[0] / imgWidth
+		pos2[1] = pos[1] / imgHeight
+		pos2[2] = pos[2] / imgWidth
+		pos2[3] = pos[3] / imgHeight
+		
+		//var info = layer.options.className + ' ' + JSON.stringify(pos2)
+		//console.info(info)
+		
+		var line = layer.options.className + ' ' 
+			 + pos2[0] + ' ' + pos2[1] + ' ' + pos2[2] + ' ' + pos2[3] + '\n'
+			//+ pos[0] + ' ' + pos[1] + ' ' + pos[2] + ' ' + pos[3] + '\n'
+		yoloTxt += line
+		var mk = {}
+		mk.ClassId = parseInt(layer.options.className)
+		mk.Rect = pos2
+		mks.push(mk)
+	});
+	
+	//console.info(yoloTxt)
+	$.ajax({
+		url: "mark/" + curImage,
+		type: "PUT",
+		data: JSON.stringify(mks),
+		success: function(data){
+			if(data.code == 200){
+				modified = false
+				alert("保存成功")
+			}
+		}
+	})
+	
+	
+	/*$.post("mark/" + curImage, JSON.stringify(mks), function(data, status){
+		if(status == "success"){
+			if(data.code == 200){
+				alert("保存成功")
+			}
+		}
+	})*/
+	
 }
 
 function exportAll(){

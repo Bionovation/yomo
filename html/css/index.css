@@ -20,6 +20,7 @@ body{
 	height: 40px;
 	padding: 0;
 	background-color: #0078A8;
+	color: white;
 }
 
 #header-content{
@@ -51,7 +52,19 @@ body{
 #pos{
 	width: 140px;
 	text-align: right;
-	padding-right: 20px;
+	padding-right: 20px;	
+}
+
+#workspace{
+	height: 100%;
+	margin-left: 50px;
+	padding: 0.5rem;
+	float: left;
+}
+
+#workspaceName{
+	border-bottom: solid 1px darkblue;
+	cursor: pointer;
 }
 
 .classItem{
@@ -129,3 +142,8 @@ body{
 	box-shadow: 5px 5px 15px #888888;
 	background-color: #F0F8FF;
 }
+
+.wancheng{
+	margin-left: 6px;
+}
+

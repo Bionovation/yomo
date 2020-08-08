@@ -13,5 +13,17 @@ func TestGetImgList(t *testing.T) {
 		return
 	}
 	log.Print(imgs)
+	log.Println("===========TestGetImgList over============")
 }
 
+func TestLoadMarks(t *testing.T) {
+	txt := "E:\\go\\src\\yomo\\html\\img\\2020073001440.txt"
+	mks,err := LoadMarks(txt)
+	if err != nil{
+		t.Fail()
+		return
+	}
+
+	log.Print(len(mks))
+	log.Println("===========TestLoadMarks over============")
+}

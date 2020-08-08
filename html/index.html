@@ -8,7 +8,11 @@
 		<div id="header">
 			<div id="header-content">
 				<div id="logo">Bionovation 检测标注工具</div>
-				<div id="export" onclick="exportAll()">保存</div>
+				<div id="export" onclick="saveChanges()">保存</div>
+				<div id="workspace">
+					<span>工作空间：</span>
+					<a id="workspaceName">红细胞标注01</a>
+				</div>
 				<div id="pos"></div>
 				<div class="classItem" onclick="setCurClass(0)"></div>
 				<div class="classItem" onclick="setCurClass(1)"></div>
@@ -26,7 +30,10 @@
 					Image List :
 				</div>
 				<ul id="imgList">
-					<!--li class="imgItem">justfortest.jpg</li-->
+					<li class="imgItem">
+						<span>justfortest.jpg</span>
+						<span class="iconfont icon-wancheng"></span>
+					</li>
 				</ul>
 				
 			</div>
@@ -41,4 +48,5 @@
 	<script src="lib/leaflet.js"></script>
 	<link rel="stylesheet" href="css/index.css" />
 	<script src="js/index.js"></script>
+	<link rel="stylesheet" type="text/css" href="https:at.alicdn.com/t/font_1994360_ep2ql3ha0c.css"/>
 </html>

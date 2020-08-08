@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-const IMGPATH  = "html/img/"
+const IMGPATH  = "F:\\Workdatas\\红细胞标注\\5\\5\\"
 
 func Run()  {
 	app := newApp()
@@ -28,8 +28,11 @@ func setRouter(app *iris.Application)  {
 	exPath, _ := os.Executable()
 	folder := filepath.Dir(exPath)
 	app.HandleDir("/", filepath.Join(folder, "./html"))
-	// set img
+
 	app.Get("/imgs",handleImgList)
 	app.Get("/img/:imgname",handleGetImg)
-	app.Get("/img/:imgname/info",handleGetImgInfo)
+	app.Get("/info/:imgname",handleGetImgInfo)
+
+	// 提交标注信息
+	app.Put("/mark/:imgname",handlePutMark)
 }

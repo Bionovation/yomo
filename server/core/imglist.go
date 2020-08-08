@@ -31,12 +31,13 @@ func GetImgList(imgpath string) ([]models.ImgItem, error) {
 
 
 	imgs := make([]models.ImgItem,0, len(imgnames))
-	for _, imgname :=  range imgnames{
+	for i, imgname :=  range imgnames{
 		fmt.Println(imgname)
 		name := strings.TrimRight(imgname,filepath.Ext(imgname))
 		txtfile := filepath.Join(imgpath,name + ".txt")
 
 		img := models.ImgItem{
+			Index:i,
 			Name:imgname,
 			Marked:utils.Exist(txtfile),
 		}
