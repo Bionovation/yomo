@@ -157,9 +157,10 @@ body{
 	right: 0;
 	top: 0;
 	bottom: 0;
-	z-index: 2;
+	z-index: 3;
 	color: white;
 	background-color: white;
+	display: none;
 }
 #ws-header{
 	width: 100%;

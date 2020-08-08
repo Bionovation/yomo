@@ -42,6 +42,7 @@ function init(){
 	setCurClass(0);
 	setListHandle();
 	setClickHandler();
+	openWSListDialog()
 }
 
 function setClickHandler(){
@@ -49,18 +50,18 @@ function setClickHandler(){
 		openWSListDialog()
 	})
 	$("#ws-close").click(function(){
-		$("#wsListDlg").hide()
+		colseWSListDialog()
 	})
 	$("#ws-btn-confirm").click(function(){
 		if(selectedWsName != null){
-			$("#wsListDlg").hide()
+			colseWSListDialog()
 			openWorkspace(selectedWsName)
 		} else{
 			return
 		}
 	})
 	$("#ws-btn-cancel").click(function(){
-		$("#wsListDlg").hide()
+		colseWSListDialog()
 	})
 	$(".ws-item").click(function(){
 		$(".ws-item").css("background-color", "lightgrey")
@@ -130,11 +131,20 @@ function drawMarkList(marks){
 
 // 打开选择工作空间窗口
 function openWSListDialog(){
+	$("#header").hide()
+	$("#main").hide()
+	
 	selectedWsName = null
 	// 从服务器获取ws列表
 	// to do ...
 	$(".ws-item").css("background-color", "lightgrey")
 	$("#wsListDlg").show()
+}
+// 关闭选择工作空间窗口
+function colseWSListDialog(){
+	$("#header").show()
+	$("#main").show()
+	$("#wsListDlg").hide()
 }
 
 // 打开工作空间
