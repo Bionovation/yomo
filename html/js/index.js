@@ -24,7 +24,9 @@ var imgHeight = 1024
 var imageList = null
 var curImageInfo = null
 var curImage = null
+var lastMoifiedImage = null
 var selectedWsName = null
+var workspaceList = null
 
 function init(){
 	map = L.map('map', {
@@ -35,11 +37,9 @@ function init(){
 	});
 		
 	//getImageList();
-	initImageList();
+	//initImageList();
 	
 	setmouseHandler();
-	setClassItem();
-	setCurClass(0);
 	setListHandle();
 	setClickHandler();
 	openWSListDialog()
@@ -77,7 +77,7 @@ function noteToSave(){
 	if(!modified) return
 	var r = confirm("是否保存修改")
 	if(r){
-		alert('ok')
+		saveChanges()
 	}
 }
 
@@ -139,6 +139,9 @@ function openWSListDialog(){
 	// to do ...
 	$(".ws-item").css("background-color", "lightgrey")
 	$("#wsListDlg").show()
+	
+	updateWSList()
+	
 }
 // 关闭选择工作空间窗口
 function colseWSListDialog(){
@@ -147,10 +150,38 @@ function colseWSListDialog(){
 	$("#wsListDlg").hide()
 }
 
+// 更新工作空间列表
+function updateWSList(){
+	$("#ws-content").empty()
+	$.get("/workspaces", function(data,status){
+		if(status == "success"){
+			workspaceList = data.data
+			drawWorkspaceList(workspaceList)
+		}
+	})
+}
+/*
+<div class="ws-item"><div>红细胞标注01</div><div>E:\Workdatas\FocusError</div></div>
+*/
+function drawWorkspaceList(wss){
+	$("#ws-content").empty()
+	for(var i = 0; i < wss.length; i++){
+		$("#ws-content").append('<div class="ws-item"><div>'+wss[i].Name+'</div><div>'+wss[i].Folder+'</div></div>')
+	}
+	$(".ws-item").click(function(){
+		$(".ws-item").css("background-color", "lightgrey")
+		$(this).css("background-color", "#ff6666")
+		var wsname = $(this).children(":first").text()
+		var folder = $(this).children(":last").text()
+		selectedWsName = wsname
+	})
+}
+
 // 打开工作空间
 function openWorkspace(name){
 	$("#workspaceName").text(name)
-	alert("todo ... 打开工作空间 " + name)
+	setClassItem()
+	initImageList()
 }
 
 // 选中image
@@ -161,7 +192,7 @@ function selectImage(img){
 	curImage = img.Name
 	
 	var bounds = [[0,0], [imgHeight,imgWidth]];
-	var image = L.imageOverlay("img/"+img.Name, bounds).addTo(map);
+	var image = L.imageOverlay("/"+selectedWsName+"/img/"+img.Name, bounds).addTo(map);
 	map.fitBounds(bounds);
 	
 	initMarkList(img.Name)
@@ -169,7 +200,7 @@ function selectImage(img){
 
 
 function initImageList() {
-	$.get("/imgs",function(data,status){
+	$.get("/"+selectedWsName+"/imgs",function(data,status){
 		if(status == "success"){
 			imageList = data.data
 			updataImageList(imageList)
@@ -178,7 +209,7 @@ function initImageList() {
 }
 
 function initMarkList(imgName) {
-	$.get("/info/"+imgName, function(data,status){
+	$.get("/"+selectedWsName+"/info/"+imgName, function(data,status){
 		if(status == "success"){
 			curImageInfo = data.data
 			drawMarkList(curImageInfo.Marks)
@@ -195,7 +226,7 @@ function setListHandle(){
 			layer.remove()
 		})
 		var bounds = [[0,0], [imgHeight,imgWidth]];
-		var image = L.imageOverlay("img/" + curImage, bounds).addTo(map);
+		var image = L.imageOverlay("/"+ selectedWsName + "/img/" + curImage, bounds).addTo(map);
 		map.fitBounds(bounds);
 		$('.imgItem').css('background-color','#F0F8FF')
 		// 列表选中
@@ -221,16 +252,31 @@ function setCurClass(classId){
 }
 
 function setClassItem(){
-	var classCount = classNames.length;
-	var classItems = document.getElementsByClassName('classItem');
-	if(classItems.length < classCount) alert('class is too many, not supported.');
-	
-	for (var i = 0; i < classCount; i++){
-		classItems[i].style.backgroundColor = classClrs[i];
-		classItems[i].innerText = classNames[i];
+	var curWs = null
+	for(var i = 0; i < workspaceList.length; i++){
+		if(selectedWsName == workspaceList[i].Name){
+			curWs = workspaceList[i]
+		}
 	}
-	for (var i = classItems.length-1; i >= classCount; i--){
-		classItems[i].remove();
+	if (curWs == null) return;
+	
+	classNames = curWs.ClassNames
+	var hc = document.getElementById("header-content")
+	$('.classItem').remove()
+	
+	for (var i = 0; i < classNames.length; i++){
+		var div = document.createElement('div')
+		div.className = "classItem"
+		div.style.backgroundColor = classClrs[i];
+		div.innerText = classNames[i];
+		bindClick(div,i)
+		hc.appendChild(div)
+	}
+}
+
+function bindClick(div,i){
+	div.onclick = function(){
+		setCurClass(i)
 	}
 }
 
@@ -245,6 +291,7 @@ function setmouseHandler(){
 function onRightClickItem(e){
 	e.target.remove()
 	modified = true
+	lastMoifiedImage = curImage
 }
 
 function onmouseDown(e){
@@ -267,6 +314,7 @@ function onmouseDown(e){
 				.bindTooltip(classNames[classNo])
 				.on('contextmenu', onRightClickItem)
 			modified = true
+			lastMoifiedImage = curImage
 			return
 		}
 		
@@ -382,12 +430,15 @@ function saveChanges(){
 	
 	//console.info(yoloTxt)
 	$.ajax({
-		url: "mark/" + curImage,
+		url: "/" + selectedWsName + "/mark/" + curImage,
 		type: "PUT",
 		data: JSON.stringify(mks),
 		success: function(data){
 			if(data.code == 200){
 				modified = false
+				if(mks.length > 0){
+					markAsLabeled(lastMoifiedImage)
+				}
 				alert("保存成功")
 			}
 		}
@@ -401,7 +452,16 @@ function saveChanges(){
 			}
 		}
 	})*/
-	
+}
+// 标记为ok
+function markAsLabeled(imgName){
+	var imgs = $(".imgItem")
+	for(var i = 0; i < imgs.length; i++){
+		if (imgs[i].innerText == imgName){
+			imgs[i].children[1].className = "iconfont icon-wancheng"
+			return
+		}
+	}
 }
 
 function exportAll(){

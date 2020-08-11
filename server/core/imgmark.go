@@ -1,8 +1,7 @@
 package core
 
 import (
-	"bufio"
-	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -23,12 +22,15 @@ func LoadMarks(txt string) ([]models.MarkItem, error) {
 	defer  mf.Close()
 
 	// 按行读取
-	rd := bufio.NewReader(mf)
-	for{
-		line,err := rd.ReadString('\n')
-		if err != nil || io.EOF == err{
-			break
-		}
+	buf,err := ioutil.ReadAll(mf)
+	if err != nil {
+		return nil, err
+	}
+
+	allines := strings.Split(string(buf),"\n")
+
+	for _,line := range allines {
+
 		line = strings.TrimSpace(line)
 
 		mk := models.MarkItem{}

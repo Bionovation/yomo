@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -32,7 +31,7 @@ func GetImgList(imgpath string) ([]models.ImgItem, error) {
 
 	imgs := make([]models.ImgItem,0, len(imgnames))
 	for i, imgname :=  range imgnames{
-		fmt.Println(imgname)
+		//fmt.Println(imgname)
 		name := strings.TrimRight(imgname,filepath.Ext(imgname))
 		txtfile := filepath.Join(imgpath,name + ".txt")
 

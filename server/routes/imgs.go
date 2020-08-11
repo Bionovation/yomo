@@ -1,4 +1,4 @@
-package server
+package routes
 
 import (
 	"fmt"
@@ -7,17 +7,26 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"yomo/server/config"
 	"yomo/server/core"
 	"yomo/server/models"
 	"yomo/utils"
 )
 
 // 获取图像列表
-func handleImgList(ctx context.Context)  {
-	res := utils.NewRes(ctx)
-	imgfolder,_ := filepath.Abs(IMGPATH)
+func ImgList(ctx context.Context)  {
 
-	ctx.Application().Logger().Info(imgfolder)
+	res := utils.NewRes(ctx)
+
+	wsname := ctx.Params().Get("wsname")
+	ws := config.FindWsByName(wsname)
+	if ws == nil{
+		res.FailMsg(fmt.Sprintf("workspace %v not found.", wsname))
+		return
+	}
+
+	imgfolder,_ := filepath.Abs(ws.Folder)
+
 	data,err := core.GetImgList(imgfolder)
 	if err != nil{
 		res.FailErr(err)
@@ -27,8 +36,17 @@ func handleImgList(ctx context.Context)  {
 }
 
 // 获取单张图片
-func handleGetImg(ctx context.Context)  {
+func GetImg(ctx context.Context)  {
+	wsname := ctx.Params().Get("wsname")
 	imgname := ctx.Params().Get("imgname")
+
+	ws := config.FindWsByName(wsname)
+	if ws == nil{
+		ctx.NotFound()
+		return
+	}
+
+
 	ext := strings.ToLower(filepath.Ext(imgname))
 
 	if ext != ".jpg" && ext != ".bmp" && ext != ".png"{
@@ -36,8 +54,10 @@ func handleGetImg(ctx context.Context)  {
 		return
 	}
 
-	imgfolder,_ := filepath.Abs(IMGPATH)
+	imgfolder,_ := filepath.Abs(ws.Folder)
 	imgpath := filepath.Join(imgfolder,imgname)
+
+	ctx.Application().Logger().Info(imgpath)
 
 	f,err := os.Open(imgpath)
 	if err != nil{
@@ -54,18 +74,28 @@ func handleGetImg(ctx context.Context)  {
 
 
 // 获取图片信息
-func handleGetImgInfo(ctx context.Context)  {
+func GetImgInfo(ctx context.Context)  {
+	res := utils.NewRes(ctx)
+
+	wsname := ctx.Params().Get("wsname")
 	imgname := ctx.Params().Get("imgname")
+
+	ws := config.FindWsByName(wsname)
+	if ws == nil{
+		res.FailMsg(fmt.Sprintf("workspace %v not found.", wsname))
+		return
+	}
+
 	ext := strings.ToLower(filepath.Ext(imgname))
 
-	res := utils.NewRes(ctx)
+
 
 	if ext != ".jpg" && ext != ".bmp" && ext != ".png"{
 		res.FailErr(fmt.Errorf("format not supported."))
 		return
 	}
 
-	imgfolder,_ := filepath.Abs(IMGPATH)
+	imgfolder,_ := filepath.Abs(ws.Folder)
 	imgpath := filepath.Join(imgfolder,imgname)
 	if !utils.Exist(imgpath){
 		res.FailErr(fmt.Errorf("image file not exist."))
