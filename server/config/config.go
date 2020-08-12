@@ -13,10 +13,14 @@ import (
 //const IMGPATH  = "F:\\Workdatas\\红细胞标注\\5\\5\\"
 
 type Config struct {
-	Name string
-	Port int
+	Common ConfigCommon
 	Proxy  ConfigProxy
 	Workspaces []models.Workspace
+}
+
+type ConfigCommon struct {
+	Name string
+	Port int
 }
 
 // frp代理参数
@@ -26,8 +30,10 @@ type ConfigProxy struct {
 }
 
 var defaultConfig = Config{
-	Port: 8080,
-	Name: "marktool",
+	Common:ConfigCommon{
+		Name:"bio-marktool",
+		Port: 8080,
+	},
 	Workspaces: nil,
 }
 
@@ -49,6 +55,8 @@ func Load(location string) (*Config, error) {
 			log.Println("load classnames failed, err: " + err.Error())
 		}
 	}
+
+	//log.Println(defaultConfig)
 
 	return conf, nil
 }

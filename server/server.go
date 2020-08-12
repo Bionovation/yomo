@@ -21,10 +21,10 @@ func Run()  {
 
 	go frpLogin()
 
-	log.Info("visit addr : http://%v.%v:8080",conf.Name,conf.Proxy.ServerAddr)
+	log.Info("visit addr : http://%v.%v:8080",conf.Common.Name,conf.Proxy.ServerAddr)
 
 	app := newApp()
-	app.Run(iris.Addr(fmt.Sprintf(":%v",conf.Port)))
+	app.Run(iris.Addr(fmt.Sprintf(":%v",conf.Common.Port)))
 }
 
 

@@ -27,18 +27,18 @@ func frpLogin() error {
 	cfg.ServerPort = cf.Proxy.ServerPort
 
 	httpCfg := config.HttpProxyConf{}
-	httpCfg.BaseProxyConf.ProxyName = cf.Name
+	httpCfg.BaseProxyConf.ProxyName = cf.Common.Name
 	httpCfg.BaseProxyConf.ProxyType = "http"
 	httpCfg.LocalIp = "127.0.0.1"
-	httpCfg.LocalPort = cf.Port
+	httpCfg.LocalPort = cf.Common.Port
 
-	httpCfg.CustomDomains = []string{fmt.Sprintf("%v.%v", cf.Name, cf.Proxy.ServerAddr)}
+	httpCfg.CustomDomains = []string{fmt.Sprintf("%v.%v", cf.Common.Name, cf.Proxy.ServerAddr)}
 	httpCfg.Locations = []string{""}
 
 	visitorCfgs := make(map[string]config.VisitorConf)
 	pxyCfgs := make(map[string]config.ProxyConf)
 
-	pxyCfgs[cf.Name] = &httpCfg
+	pxyCfgs[cf.Common.Name] = &httpCfg
 
 
 	svr, err := client.NewService(cfg, pxyCfgs, visitorCfgs, "")

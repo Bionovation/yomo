@@ -191,6 +191,10 @@ function selectImage(img){
 	listCtl.childNodes[img.Index].style.backgroundColor = '#ff6666'
 	curImage = img.Name
 	
+	map.eachLayer(function(layer){
+		layer.remove()
+	})
+	
 	var bounds = [[0,0], [imgHeight,imgWidth]];
 	var image = L.imageOverlay("/"+selectedWsName+"/img/"+img.Name, bounds).addTo(map);
 	map.fitBounds(bounds);

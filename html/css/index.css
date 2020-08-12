@@ -200,11 +200,11 @@ body{
 	cursor: pointer;
 }
 .ws-item>div:first-child{
-	width: 160px;
+	width: 120px;
 }
 .ws-item>div{
 	display: inline-block;
-	margin-left: 50px;
+	margin-left: 20px;
 }
 
 #ws-footer{

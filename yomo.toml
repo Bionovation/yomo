@@ -1,6 +1,6 @@
 [common]
-name = "marktool"
-port = 8080
+Name = "marktool-gray"
+Port = 8080
 
 [proxy]
 ServerAddr = "slide.bionovationimc.com"
@@ -9,8 +9,8 @@ ServerPort = 7000
 
 [[workspaces]]
 name = "测试工程01"
-folder = "E:\\go\\src\\yomo\\html\\img"
-classdef = "E:\\go\\src\\yomo\\html\\obj.names"
+folder = "F:\\Workdatas\\红细胞标注\\5\\over0803"
+classdef = "F:\\Workdatas\\红细胞标注\\5\\classnames.txt"
 
 [[workspaces]]
 name = "测试工程02"
