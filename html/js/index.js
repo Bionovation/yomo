@@ -135,11 +135,13 @@ function updataImageList(imageList){
 		}
 		
 	}
+	
+	document.getElementById('imageCount').innerHTML = markedCount+'/'+imageList.length
+	document.getElementById('markedCount').innerHTML = checkedCount + '/' + markedCount
+	
 	if(firstImage != ""){
 		selectImage(firstImage)
 	}
-	document.getElementById('imageCount').innerHTML = markedCount+'/'+imageList.length
-	document.getElementById('markedCount').innerHTML = checkedCount + '/' + markedCount
 }
 
 // 绘制mark
