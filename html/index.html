@@ -27,15 +27,44 @@
 		</div>
 		<div id="main">
 			<div id="main-left">
-				<div id="imgItemHeader">
-					Image List :
+				<div id="main-left-imglist">
+					<div class="imgItemHeader">
+						<span>Images :</span>
+						<span id="imageCount">
+							0/0
+						</span>
+						<div id="btn-clear" onclick="clearUnMarked()">
+							清理未标记
+						</div>
+					</div>
+					<ul id="imgList" class="imgList">
+						<li class="imgItem">
+							<span>justfortest.jpg</span>
+							<span class="iconfont icon-wancheng"></span>
+						</li>
+					</ul>
 				</div>
-				<ul id="imgList">
-					<li class="imgItem">
-						<span>justfortest.jpg</span>
-						<span class="iconfont icon-wancheng"></span>
-					</li>
-				</ul>
+				
+				<div id="main-left-mrklist">
+					<div class="imgItemHeader">
+						<span>Marked </span>
+						<span id="markedCount">
+							0/0
+						</span>
+						<span> :</span>
+						<div id="btn-check" onclick="checkOk()">
+							标记OK
+						</div>
+					</div>
+					
+					<ul id="imgList2" class="imgList">
+						<li class="imgItem">
+							<span>justfortest.jpg</span>
+							<span class="iconfont icon-wancheng"></span>
+						</li>
+					</ul>
+				</div>
+				
 				
 			</div>
 			<div id="main-content">

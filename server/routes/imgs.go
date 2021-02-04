@@ -109,6 +109,10 @@ func GetImgInfo(ctx context.Context)  {
 	txt = filepath.Join(imgfolder,txt)
 	info.Marked = utils.Exist(txt)
 
+	check := strings.TrimRight(imgname,filepath.Ext(imgname)) + ".ok"
+	check = filepath.Join(imgfolder,check)
+	info.Checked = utils.Exist(check)
+
 	marks,err := core.LoadMarks(txt)
 	if err != nil {
 		res.FailErr(err)

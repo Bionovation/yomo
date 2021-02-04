@@ -50,4 +50,10 @@ func setRouter(app *iris.Application)  {
 
 	// 提交标注信息
 	app.Put("/:wsname/mark/:imgname",routes.PutMark)
+
+	// 标记为检查过
+	app.Put("/:wsname/check/:imgname", routes.PutCheck)
+
+	// 清理未标记的图
+	app.Put("/:wsname/clear", routes.ClearUnMarked)
 }

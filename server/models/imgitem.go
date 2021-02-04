@@ -5,4 +5,5 @@ type ImgItem struct {
 	Index  int
 	Name   string
 	Marked bool
+	Checked bool
 }

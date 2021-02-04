@@ -10,7 +10,6 @@ var classNo = 0       // 当前要标注的类别id
 var classNames = ['RedCell','Platelet','other']
 var classClrs = [
 	'rgb(238,0,0)',
-	'rgb(238,53,0)', 
 	'rgb(238,107,0)', 
 	'rgb(238,167,0)',
 	'rgb(220,238,0)',
@@ -97,28 +96,50 @@ function noteToSave(){
 function updataImageList(imageList){
 	var firstName = null
 	var listCtl = document.getElementById('imgList')
+	var listCtl2 = document.getElementById('imgList2') // 标注过的图
 	listCtl.innerHTML = ""
+	listCtl2.innerHTML = ""
 	
+	// document.getElementById('imageCount').innerHTML = posStr;
+	
+	var markedCount = 0
+	var checkedCount = 0
+	var firstImage = ""
 	for(var i = 0; i < imageList.length; i++){
 		var name = imageList[i].Name
+		var marked = imageList[i].Marked
+		var checked = imageList[i].Checked
 		var li = document.createElement('li')
 		var span = document.createElement('span')
 		span.innerText = name
 		li.appendChild(span)
 		
 		span = document.createElement('span')
-		if(imageList[i].Marked){
+		if(checked){
 			span.className = "wancheng iconfont icon-wancheng"
+			checkedCount = checkedCount + 1
 		}else{
 			span.className = "wancheng iconfont"
 		}
 		li.appendChild(span)
 		
 		li.className = 'imgItem'
-		listCtl.appendChild(li)
+		if(!marked){
+			listCtl.appendChild(li)
+			if(firstImage == ""){
+				firstImage = name
+			}
+		}else{
+			listCtl2.appendChild(li)
+			markedCount = markedCount + 1
+		}
+		
 	}
-	
-	selectImage(imageList[0])
+	if(firstImage != ""){
+		selectImage(firstImage)
+	}
+	document.getElementById('imageCount').innerHTML = markedCount+'/'+imageList.length
+	document.getElementById('markedCount').innerHTML = checkedCount + '/' + markedCount
 }
 
 // 绘制mark
@@ -235,6 +256,24 @@ function initMarkList(imgName) {
 
 function setListHandle(){
 	$('ul#imgList').on('click','li',function(){
+		noteToSave(); // 提示保存
+		curImage = $(this).text()
+		//alert(imgpath)
+		map.eachLayer(function(layer){
+			layer.remove()
+		})
+		var bounds = [[0,0], [imgHeight,imgWidth]];
+		var image = L.imageOverlay("/"+ selectedWsName + "/img/" + curImage, bounds).addTo(map);
+		map.fitBounds(bounds);
+		$('.imgItem').css('background-color','#F0F8FF')
+		// 列表选中
+		$(this).css('background-color','#ff6666')
+		modified = false
+		
+		initMarkList($(this).text())
+	})
+	
+	$('ul#imgList2').on('click','li',function(){
 		noteToSave(); // 提示保存
 		curImage = $(this).text()
 		//alert(imgpath)
@@ -455,7 +494,7 @@ function saveChanges(){
 				if(mks.length > 0){
 					markAsLabeled(lastMoifiedImage)
 				}
-				alert("保存成功")
+				//alert("保存成功")
 			}
 		}
 	})
@@ -469,6 +508,8 @@ function saveChanges(){
 		}
 	})*/
 }
+
+
 // 标记为ok
 function markAsLabeled(imgName){
 	var imgs = $(".imgItem")
@@ -478,6 +519,39 @@ function markAsLabeled(imgName){
 			return
 		}
 	}
+}
+
+// 检查没问题
+function checkOk() {
+	$.ajax({
+		url: "/" + selectedWsName + "/check/" + curImage,
+		type: "PUT",
+		data: null,
+		success: function(data){
+			if(data.code == 200){
+				modified = false
+				markAsLabeled(curImage)
+				//alert("标记完成")
+			}
+		}
+	})
+}
+
+// 清理没有标记的图
+function clearUnMarked() {
+	if(!confirm('该操作将删除磁盘中未标注的图片，是否继续？')){
+		return
+	}
+	$.ajax({
+		url: "/" + selectedWsName + "/clear",
+		type: "PUT",
+		data: null,
+		success: function(data){
+			if(data.code == 200){
+				initImageList()
+			}
+		}
+	})
 }
 
 function exportAll(){

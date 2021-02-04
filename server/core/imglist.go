@@ -34,11 +34,13 @@ func GetImgList(imgpath string) ([]models.ImgItem, error) {
 		//fmt.Println(imgname)
 		name := strings.TrimRight(imgname,filepath.Ext(imgname))
 		txtfile := filepath.Join(imgpath,name + ".txt")
+		checkfile := filepath.Join(imgpath,name + ".ok")
 
 		img := models.ImgItem{
 			Index:i,
 			Name:imgname,
 			Marked:utils.Exist(txtfile),
+			Checked:utils.Exist(checkfile),
 		}
 		imgs = append(imgs,img)
 	}

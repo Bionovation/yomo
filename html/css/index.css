@@ -93,6 +93,16 @@ body{
 	background-color: #BBBBBB;
 }
 
+#main-left-imglist{
+	height: 50%;
+}
+
+#main-left-mrklist{
+	height: 50%;
+}
+
+
+
 #main-content{
 	width: calc(100% - 227px);
 	height: 100%;
@@ -120,14 +130,14 @@ body{
 }
 
 /*图片列表*/
-#imgItemHeader{
+.imgItemHeader{
 	//background-color: #0078A8;
 	height: 30px;
 	padding: 5px 10px;
 	margin: 0;
 }
 
-#imgList{
+.imgList{
 	margin: 0;
 	padding: 10px 5px;
 	background-color: #F0F8FF;
@@ -222,4 +232,28 @@ body{
 	padding: 8px 20px;
 	margin: 10px 20px 10px 0;
 	cursor: pointer;
+}
+
+#btn-check{
+	display: inline-block;
+	margin-left: 0.625rem;
+	cursor: pointer;
+	background-color: cadetblue;
+	padding: 0.125rem;
+}
+
+#btn-check:hover{
+	background-color: #FFA500;
+}
+
+#btn-clear{
+	display: inline-block;
+	margin-left: 0.625rem;
+	cursor: pointer;
+	background-color: cadetblue;
+	padding: 0.125rem;
+}
+
+#btn-clear:hover{
+	background-color: #FFA500;
 }
